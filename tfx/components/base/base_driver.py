@@ -30,9 +30,9 @@ class ExecutionDecision(object):
   """ExecutionDecision records how executor should perform next execution.
 
   Attributes:
-    input_dict: Updated key -> TfxType for inputs that will be used by
+    input_dict: Updated key -> TfxArtifact for inputs that will be used by
       actual execution.
-    output_dict: Updated key -> TfxType for outputs that will be used by
+    output_dict: Updated key -> TfxArtifact for outputs that will be used by
       actual execution.
     exec_properties: Updated dict of other execution properties that will be
       used by actual execution.
@@ -131,7 +131,7 @@ class BaseDriver(object):
     """Verify input exist.
 
     Args:
-      input_dict: key -> TfxType for inputs.
+      input_dict: key -> TfxArtifact for inputs.
 
     Raises:
       RuntimeError: if any input as an empty uri.
@@ -224,9 +224,9 @@ class BaseDriver(object):
     instead of a new execution if found.
 
     Args:
-      input_dict: key -> TfxType for inputs. One can expect every input already
-        registered in ML metadata except ExamplesGen.
-      output_dict: key -> TfxType for outputs. Uris of the outputs are not
+      input_dict: key -> TfxArtifact for inputs. One can expect every input
+        already registered in ML metadata except ExamplesGen.
+      output_dict: key -> TfxArtifact for outputs. Uris of the outputs are not
         assigned. It's subclasses' responsibility to set the real output uris.
       exec_properties: Dict of other execution properties.
       driver_options: An instance of DriverOptions class.

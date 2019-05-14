@@ -30,9 +30,9 @@ class Driver(base_driver.BaseDriver):
   an artifact, e.g., for CsvExampleGen and ImportExampleGen.
   """
 
-  def _prepare_input_for_processing(self,
-                                    input_dict
-                                   ):
+  def _prepare_input_for_processing(
+      self, input_dict
+      ):
     """Resolves artifacts for external inputs."""
     # TODO(jyzhao): check state of the artifacts.
     registered_artifacts = self._metadata_handler.get_all_artifacts()

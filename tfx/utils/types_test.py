@@ -22,6 +22,7 @@ import json
 
 # Standard Imports
 
+import mock
 import tensorflow as tf
 from tfx.utils import types
 
@@ -29,7 +30,7 @@ from tfx.utils import types
 class TypesTest(tf.test.TestCase):
 
   def test_tfx_type(self):
-    instance = types.TfxType('MyTypeName', split='eval')
+    instance = types.TfxArtifact('MyTypeName', split='eval')
 
     # Test property getters.
     self.assertEqual('', instance.uri)
@@ -73,13 +74,13 @@ class TypesTest(tf.test.TestCase):
     # Test json serialization.
     json_dict = instance.json_dict()
     s = json.dumps(json_dict)
-    other_instance = types.TfxType.parse_from_json_dict(json.loads(s))
+    other_instance = types.TfxArtifact.parse_from_json_dict(json.loads(s))
     self.assertEqual(instance.artifact, other_instance.artifact)
     self.assertEqual(instance.artifact_type, other_instance.artifact_type)
 
   def test_get_from_single_list(self):
-    """Test various retrieval utilities on a single list of TfxType."""
-    single_list = [types.TfxType('MyTypeName', split='eval')]
+    """Test various retrieval utilities on a single list of TfxArtifact."""
+    single_list = [types.TfxArtifact('MyTypeName', split='eval')]
     single_list[0].uri = '/tmp/evaluri'
     self.assertEqual(single_list[0], types.get_single_instance(single_list))
     self.assertEqual('/tmp/evaluri', types.get_single_uri(single_list))
@@ -92,10 +93,10 @@ class TypesTest(tf.test.TestCase):
       types.get_split_uri(single_list, 'train')
 
   def test_get_from_split_list(self):
-    """Test various retrieval utilities on a list of split TfxTypes."""
+    """Test various retrieval utilities on a list of split TfxArtifacts."""
     split_list = []
     for split in ['train', 'eval']:
-      instance = types.TfxType('MyTypeName', split=split)
+      instance = types.TfxArtifact('MyTypeName', split=split)
       instance.uri = '/tmp/' + split
       split_list.append(instance)
 
@@ -111,6 +112,15 @@ class TypesTest(tf.test.TestCase):
     self.assertEqual(split_list[1], types._get_split_instance(
         split_list, 'eval'))
     self.assertEqual('/tmp/eval', types.get_split_uri(split_list, 'eval'))
+
+  @mock.patch('apache_beam.utils.annotations.warnings')
+  def test_tfxtype_deprecated(self, mock_warnings):
+    warn_mock = mock.MagicMock()
+    mock_warnings.warn = warn_mock
+    types.TfxType('FakeType')
+    warn_mock.assert_called_once()
+    self.assertIn('TfxType has been renamed to TfxArtifact',
+                  warn_mock.call_args[0][0])
 
 
 if __name__ == '__main__':

@@ -95,7 +95,7 @@ class BaseExampleGenExecutor(
       @beam.typehints.with_output_types(tf.train.Example)
       def ExamplePTransform(
           pipeline: beam.Pipeline,
-          input_dict: Dict[Text, List[types.TfxType]],
+          input_dict: Dict[Text, List[types.TfxArtifact]],
           exec_properties: Dict[Text, Any],
           split_pattern: Text) -> beam.pvalue.PCollection
     """

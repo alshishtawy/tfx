@@ -18,6 +18,8 @@ from __future__ import division
 from __future__ import print_function
 
 import json
+
+from apache_beam.utils.annotations import deprecated
 import builtins
 
 from typing import Any
@@ -43,21 +45,21 @@ ARTIFACT_STATE_DELETED = 'deleted'
 DEFAULT_EXAMPLE_SPLITS = ['train', 'eval']
 
 
-class TfxType(object):
-  """Base Tfx Type used for orchestration.
+class TfxArtifact(object):
+  """TFX artifact used for orchestration.
 
-  This is used for type checking and inter component communicating. Currently
-  it wraps a tuple of
-  (ml_metadata.proto.Artifact, ml_metadata.proto.ArtifactType)
-  with additional properties for accessing internal state.
+  This is used for type-checking and inter-component communication. Currently,
+  it wraps a tuple of (ml_metadata.proto.Artifact,
+  ml_metadata.proto.ArtifactType) with additional property accessors for
+  internal state.
   """
 
   def __init__(self, type_name, split = ''):
-    """Construct an instance of TfxType.
+    """Construct an instance of TfxArtifact.
 
-    Each instance of TfxTypes wraps an Artifact and its type internally. When
-    first created, the artifact will have an empty URI (which will be filled by
-    orchestration system before first usage).
+    Each instance of TfxArtifact wraps an Artifact and its type internally.
+    When first created, the artifact will have an empty URI (which will be
+    filled by the orchestration system before first usage).
 
     Args:
       type_name: Name of underlying ArtifactType.
@@ -104,12 +106,12 @@ class TfxType(object):
 
   @classmethod
   def parse_from_json_dict(cls, d):
-    """Creates a instance of TfxType from a json deserialized dict."""
+    """Creates a instance of TfxArtifact from a json deserialized dict."""
     artifact = metadata_store_pb2.Artifact()
     json_format.Parse(json.dumps(d['artifact']), artifact)
     artifact_type = metadata_store_pb2.ArtifactType()
     json_format.Parse(json.dumps(d['artifact_type']), artifact_type)
-    result = TfxType(artifact_type.name, artifact.uri)
+    result = TfxArtifact(artifact_type.name, artifact.uri)
     result.set_artifact_type(artifact_type)
     result.set_artifact(artifact)
     return result
@@ -197,16 +199,23 @@ class TfxType(object):
     self.artifact.custom_properties[key].int_value = builtins.int(value)
 
 
+@deprecated(since='TFX 0.14.0',
+            extra_message=('TfxType has been renamed to TfxArtifact; TfxType '
+                           'will be removed soon.'))
+class TfxType(TfxArtifact):
+  pass
+
+
 def parse_tfx_type_dict(json_str):
-  """Parse a dict from key to list of TfxType from its json format."""
+  """Parse a dict from key to list of TfxArtifact from its json format."""
   tfx_artifacts = {}
   for k, l in json.loads(json_str).items():
-    tfx_artifacts[k] = [TfxType.parse_from_json_dict(v) for v in l]
+    tfx_artifacts[k] = [TfxArtifact.parse_from_json_dict(v) for v in l]
   return tfx_artifacts
 
 
 def jsonify_tfx_type_dict(artifact_dict):
-  """Serialize a dict from key to list of TfxType into json format."""
+  """Serialize a dict from key to list of TfxArtifact into json format."""
   d = {}
   for k, l in artifact_dict.items():
     d[k] = [v.json_dict() for v in l]
@@ -214,13 +223,13 @@ def jsonify_tfx_type_dict(artifact_dict):
 
 
 def get_single_instance(artifact_list):
-  """Get a single instance of TfxType from a list of length one.
+  """Get a single instance of TfxArtifact from a list of length one.
 
   Args:
-    artifact_list: A list of TfxType objects whose length must be one.
+    artifact_list: A list of TfxArtifact objects whose length must be one.
 
   Returns:
-    The single TfxType object in artifact_list.
+    The single TfxArtifact object in artifact_list.
 
   Raises:
     ValueError: If length of artifact_list is not one.
@@ -232,13 +241,13 @@ def get_single_instance(artifact_list):
 
 
 def get_single_uri(artifact_list):
-  """Get the uri of TfxType from a list of length one.
+  """Get the uri of TfxArtifact from a list of length one.
 
   Args:
-    artifact_list: A list of TfxType objects whose length must be one.
+    artifact_list: A list of TfxArtifact objects whose length must be one.
 
   Returns:
-    The uri of the single TfxType object in artifact_list.
+    The uri of the single TfxArtifact object in artifact_list.
 
   Raises:
     ValueError: If length of artifact_list is not one.
@@ -246,15 +255,16 @@ def get_single_uri(artifact_list):
   return get_single_instance(artifact_list).uri
 
 
-def _get_split_instance(artifact_list, split):
-  """Get an instance of TfxType with matching split from given list.
+def _get_split_instance(artifact_list,
+                        split):
+  """Get an instance of TfxArtifact with matching split from given list.
 
   Args:
-    artifact_list: A list of TfxType objects whose length must be one.
+    artifact_list: A list of TfxArtifact objects whose length must be one.
     split: Name of split.
 
   Returns:
-    The single TfxType object in artifact_list with matching split.
+    The single TfxArtifact object in artifact_list with matching split.
 
   Raises:
     ValueError: If number with matching split in artifact_list is not one.
@@ -266,14 +276,14 @@ def _get_split_instance(artifact_list, split):
 
 
 def get_split_uri(artifact_list, split):
-  """Get the uri of TfxType with matching split from given list.
+  """Get the uri of TfxArtifact with matching split from given list.
 
   Args:
-    artifact_list: A list of TfxType objects whose length must be one.
+    artifact_list: A list of TfxArtifact objects whose length must be one.
     split: Name of split.
 
   Returns:
-    The uri of TfxType object in artifact_list with matching split.
+    The uri of TfxArtifact object in artifact_list with matching split.
 
   Raises:
     ValueError: If number with matching split in artifact_list is not one.

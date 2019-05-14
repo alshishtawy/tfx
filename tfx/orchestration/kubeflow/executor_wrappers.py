@@ -37,7 +37,7 @@ def parse_tfx_type(json_str):
 
   tfx_types = []
   for json_artifact in json_artifact_list:
-    tfx_type = types.TfxType.parse_from_json_dict(json_artifact)
+    tfx_type = types.TfxArtifact.parse_from_json_dict(json_artifact)
     tfx_types.append(tfx_type)
 
   return tfx_types

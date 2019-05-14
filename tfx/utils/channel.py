@@ -96,13 +96,13 @@ def as_channel(source):
   """Converts artifact collection of the same artifact type into a Channel.
 
   Args:
-    source: Either a Channel or an iterable of TfxType.
+    source: Either a Channel or an iterable of TfxArtifact.
 
   Returns:
     A static Channel containing the source artifact collection.
 
   Raises:
-    ValueError when source is not a non-empty iterable of TfxType.
+    ValueError when source is not a non-empty iterable of TfxArtifact.
   """
 
   if isinstance(source, Channel):
@@ -110,7 +110,7 @@ def as_channel(source):
   elif isinstance(source, collections.Iterable):
     try:
       first_element = next(iter(source))
-      if isinstance(first_element, types.TfxType):
+      if isinstance(first_element, types.TfxArtifact):
         return Channel(
             type_name=first_element.type_name,
             static_artifact_collection=source)

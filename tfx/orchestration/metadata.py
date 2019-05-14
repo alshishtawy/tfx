@@ -27,7 +27,7 @@ from ml_metadata.metadata_store import metadata_store
 from ml_metadata.proto import metadata_store_pb2
 from tensorflow.python.lib.io import file_io  # pylint: disable=g-direct-tensorflow-import
 from tfx.utils.types import ARTIFACT_STATE_PUBLISHED
-from tfx.utils.types import TfxType
+from tfx.utils.types import TfxArtifact
 
 
 # Maximum number of executions we look at for previous result.
@@ -198,7 +198,8 @@ class Metadata(object):
 
   def publish_execution(
       self, execution_id, input_dict,
-      output_dict):
+      output_dict
+      ):
     """Publish an execution with input and output artifacts info.
 
     Args:
@@ -281,7 +282,8 @@ class Metadata(object):
     tf.logging.info('No execution matching type id and input artifacts found')
     return None
 
-  def previous_run(self, type_name, input_dict,
+  def previous_run(self, type_name,
+                   input_dict,
                    exec_properties):
     """Gets previous run of same type that takes current set of input.
 
@@ -321,7 +323,7 @@ class Metadata(object):
     """Fetches output with artifact ids produced by a previous run.
 
     Args:
-      output_dict: a dict from name to a list of output TfxType objects.
+      output_dict: a dict from name to a list of output TfxArtifact objects.
       execution_id: the id of the execution that produced the outputs.
 
     Returns:

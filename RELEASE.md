@@ -18,6 +18,8 @@
     DatasetSchema object which may be removed in tensorflow_transform 0.14 or
     0.15.
 
+*   TfxType has been renamed to TfxArtifact.
+
 ## Breaking changes
 
 
